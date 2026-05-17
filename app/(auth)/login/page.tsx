@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
+
 export default function LoginPage() {
   const router = useRouter();
   const supabase = createClient();
@@ -26,6 +27,19 @@ export default function LoginPage() {
       return;
     }
 
+    router.push("/dashboard");
+    router.refresh();
+  }
+
+  async function handleGuest() {
+    setLoading(true);
+    setError(null);
+    const { error } = await supabase.auth.signInAnonymously();
+    if (error) {
+      setError("ゲストログインに失敗しました");
+      setLoading(false);
+      return;
+    }
     router.push("/dashboard");
     router.refresh();
   }
@@ -74,6 +88,22 @@ export default function LoginPage() {
           {loading ? "ログイン中..." : "ログイン"}
         </button>
       </form>
+
+      <div className="mt-4">
+        <div className="relative flex items-center">
+          <div className="flex-grow border-t border-stone-200" />
+          <span className="mx-3 text-xs text-stone-400">または</span>
+          <div className="flex-grow border-t border-stone-200" />
+        </div>
+        <button
+          type="button"
+          onClick={handleGuest}
+          disabled={loading}
+          className="mt-4 w-full py-3 border border-stone-300 rounded-2xl text-stone-600 text-sm font-medium hover:bg-stone-50 active:scale-95 transition-all disabled:opacity-50"
+        >
+          登録なしでゲストとして試す
+        </button>
+      </div>
 
       <p className="text-center text-sm text-stone-500 mt-6">
         アカウントをお持ちでない方は{" "}

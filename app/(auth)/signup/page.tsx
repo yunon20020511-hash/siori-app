@@ -1,10 +1,12 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 export default function SignupPage() {
   const supabase = createClient();
+  const router = useRouter();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -38,6 +40,19 @@ export default function SignupPage() {
     }
 
     setDone(true);
+  }
+
+  async function handleGuest() {
+    setLoading(true);
+    setError(null);
+    const { error } = await supabase.auth.signInAnonymously();
+    if (error) {
+      setError("ゲストログインに失敗しました");
+      setLoading(false);
+      return;
+    }
+    router.push("/dashboard");
+    router.refresh();
   }
 
   // メール確認待ち画面
@@ -100,6 +115,25 @@ export default function SignupPage() {
           {loading ? "登録中..." : "アカウントを作成"}
         </button>
       </form>
+
+      <div className="mt-4">
+        <div className="relative flex items-center">
+          <div className="flex-grow border-t border-stone-200" />
+          <span className="mx-3 text-xs text-stone-400">または</span>
+          <div className="flex-grow border-t border-stone-200" />
+        </div>
+        <button
+          type="button"
+          onClick={handleGuest}
+          disabled={loading}
+          className="mt-4 w-full py-3 border border-stone-300 rounded-2xl text-stone-600 text-sm font-medium hover:bg-stone-50 active:scale-95 transition-all disabled:opacity-50"
+        >
+          登録なしでゲストとして試す
+        </button>
+        <p className="text-center text-xs text-stone-400 mt-2">
+          後からメール登録するとデータが引き継がれます
+        </p>
+      </div>
 
       <p className="text-center text-sm text-stone-500 mt-6">
         すでにアカウントをお持ちの方は{" "}

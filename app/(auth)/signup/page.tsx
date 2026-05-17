@@ -47,7 +47,7 @@ export default function SignupPage() {
     setError(null);
     const { error } = await supabase.auth.signInAnonymously();
     if (error) {
-      setError("ゲストログインに失敗しました");
+      setError(`ゲストログインに失敗しました: ${error.message}`);
       setLoading(false);
       return;
     }

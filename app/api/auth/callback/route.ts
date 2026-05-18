@@ -20,13 +20,17 @@ export async function GET(request: NextRequest) {
 
       if (user) {
         await supabase.from("users").upsert(
-          {
-            id: user.id,
-            email: user.email!,
-            plan: "free",
-          },
+          { id: user.id, email: user.email ?? null, plan: "free" },
           { onConflict: "id", ignoreDuplicates: true }
         );
+        // 匿名から本登録に切り替わった場合、emailを更新
+        if (user.email) {
+          await supabase
+            .from("users")
+            .update({ email: user.email })
+            .eq("id", user.id)
+            .is("email", null);
+        }
       }
 
       return NextResponse.redirect(`${origin}${next}`);
